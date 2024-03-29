@@ -1,6 +1,6 @@
 <template>
   <div class="login-container">
-    <LoginForm :type="'login'" />
+    <LoginForm :type="'resetPwd'" />
   </div>
 </template>
 

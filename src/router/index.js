@@ -33,7 +33,20 @@ import Layout from "@/layout";
 export const constantRoutes = [
   {
     path: "/login",
+    name: "Login",
     component: () => import("@/views/login/index"),
+    hidden: true,
+  },
+  {
+    path: "/register",
+    name: "Register",
+    component: () => import("@/views/register/index"),
+    hidden: true,
+  },
+  {
+    path: "/resetPwd",
+    name: "ResetPwd",
+    component: () => import("@/views/resetPwd/index"),
     hidden: true,
   },
 
@@ -57,24 +70,24 @@ export const constantRoutes = [
     ],
   },
   {
-    path: "/upload",
+    path: "/uploadImg",
     component: Layout,
     children: [
       {
         path: "index",
-        name: "Upload",
+        name: "UploadImg",
         component: () => import("@/views/upload/index"),
         meta: { title: "图片检测", icon: "el-icon-search" },
       },
     ],
   },
   {
-    path: "/upload",
+    path: "/uploadVedio",
     component: Layout,
     children: [
       {
         path: "index",
-        name: "Upload",
+        name: "UploadVedio",
         component: () => import("@/views/video/index"),
         meta: { title: "视频检测", icon: "el-icon-video-camera" },
       },
