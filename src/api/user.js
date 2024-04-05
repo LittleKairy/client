@@ -1,3 +1,4 @@
+import { getToken, removeToken } from "@/utils/auth";
 import request from "@/utils/request";
 
 // params:  username、password
@@ -17,8 +18,8 @@ export function login(data) {
 }
 
 // params:  username、password
-// 信息为空返回 jsonify({'message': 'The user or password cannot be empty'}), 400
-// 用户已存在返回 jsonify({'message': 'Username already exists'}), 400
+// 信息为空返回 jsonify({'message': 'The user or password cannot be empty'}), 401
+// 用户已存在返回 jsonify({'message': 'Username already exists'}), 401
 // 密码格式不规范返回 jsonify({'message': 'The password must be at least 8 digits long and contain uppercase and lowercase letters, numbers, and special characters'}), 400
 // 成功注册返回jsonify({'message': 'Registration successful'}), 201
 export function register(data) {
@@ -49,13 +50,15 @@ export function logout() {
   //   url: "/vue-admin-template/user/logout",
   //   method: "post",
   // });
+  const token = getToken();
+  removeToken(token);
 }
 
 // 修改用户
-export function setUser(data) {
+export function resetPwd(data) {
   return request({
-    url: "/api/admin",
-    method: "PUT",
+    url: "/api/password-reset",
+    method: "POST",
     data,
   });
 }

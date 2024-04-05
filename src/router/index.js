@@ -96,12 +96,19 @@ export const constantRoutes = [
   {
     path: "/history",
     component: Layout,
+    meta: { title: "检测记录", icon: "el-icon-notebook-2" },
     children: [
       {
-        path: "index",
-        name: "History",
+        path: "image",
+        name: "ImageHistory",
         component: () => import("@/views/history/index"),
-        meta: { title: "检测记录", icon: "el-icon-notebook-2" },
+        meta: { title: "图片检测记录", icon: "el-icon-picture" },
+      },
+      {
+        path: "vedio",
+        name: "VideoHistory",
+        component: () => import("@/views/videoHistory/index"),
+        meta: { title: "视频检测记录", icon: "el-icon-video-camera" },
       },
     ],
   },

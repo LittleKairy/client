@@ -39,7 +39,7 @@
           ref="password"
           v-model="loginForm.password"
           :type="passwordType"
-          placeholder="请输入密码"
+          :placeholder="isResetPwd ? '请输入旧密码' : '请输入密码'"
           name="password"
           tabindex="2"
           :auto-complete="passAutoComplete"
@@ -63,7 +63,7 @@
             ref="checkPass"
             v-model="loginForm.checkPass"
             :type="checkPassType"
-            placeholder="请确认密码"
+            :placeholder="isResetPwd ? '请输入新密码' : '请确认密码'"
             name="checkPass"
             tabindex="3"
             @keyup.enter.native="handleLogin"
@@ -85,16 +85,22 @@
       >
 
       <span class="changeRoute"
-        ><router-link v-if="isLogin" :to="{ name: 'Register' }"
+        ><router-link
+          v-if="isLogin"
+          :to="{ name: 'Register', query: { redirect: redirect } }"
           >注册</router-link
         >
-        <router-link v-if="isRegister || isResetPwd" :to="{ name: 'Login' }"
+        <router-link
+          v-if="isRegister || isResetPwd"
+          :to="{ name: 'Login', query: { redirect: redirect } }"
           >登录</router-link
         >
       </span>
 
       <span v-if="isLogin" class="forgetPwd"
-        ><router-link :to="{ name: 'ResetPwd' }">忘记密码？</router-link></span
+        ><router-link :to="{ name: 'ResetPwd', query: { redirect: redirect } }"
+          >忘记密码？</router-link
+        ></span
       >
     </el-form>
   </div>
@@ -109,27 +115,42 @@ export default {
     },
   },
   data() {
-    const validateUsername = (rule, value, callback) => {
-      if (value.trim() === "") {
-        callback(new Error("请输入用户名"));
-      } else {
-        callback();
-      }
-    };
     const validatePassword = (rule, value, callback) => {
-      if (value.trim() === "") {
-        callback(new Error("请输入密码"));
+      if (this.isRegister) {
+        if (value.trim() === "") {
+          callback(
+            new Error("密码需包含大小写字母、数字及特殊字符，且至少为8位")
+          );
+        } else {
+          callback();
+        }
       } else {
-        callback();
+        if (value.trim() === "") {
+          callback(new Error("请输入密码"));
+        } else {
+          callback();
+        }
       }
     };
     const validateCheckPass = (rule, value, callback) => {
-      if (value.trim() === "") {
-        callback(new Error("请再次输入密码"));
-      } else if (value !== this.loginForm.password) {
-        callback(new Error("两次输入密码不一致!"));
+      if (this.isResetPwd) {
+        // 输入新密码
+        if (value.trim() === "") {
+          callback(
+            new Error("密码需包含大小写字母、数字及特殊字符，且至少为8位")
+          );
+        } else {
+          callback();
+        }
       } else {
-        callback();
+        // 重复输入密码，验证是否一致
+        if (value.trim() === "") {
+          callback(new Error("请再次输入密码"));
+        } else if (value !== this.loginForm.password) {
+          callback(new Error("两次输入密码不一致!"));
+        } else {
+          callback();
+        }
       }
     };
     return {
@@ -140,10 +161,15 @@ export default {
       },
       loginRules: {
         username: [
-          { required: true, trigger: "blur", validator: validateUsername },
+          { required: true, message: "请输入用户名", trigger: "blur" },
         ],
         password: [
-          { required: true, trigger: "blur", validator: validatePassword },
+          { required: true, message: "请输入密码", trigger: "blur" },
+          {
+            pattern: /^(?=.*\d)(?=.*[a-zA-Z])(?=.*[^\da-zA-Z\s]).{8,}$/,
+            message: "密码需包含大小写字母、数字及特殊字符，且至少为8位",
+            trigger: "blur",
+          },
         ],
         checkPass: [
           { required: true, trigger: "blur", validator: validateCheckPass },
@@ -212,25 +238,12 @@ export default {
       this.$refs.loginForm.validate((valid) => {
         if (valid) {
           // 表单验证通过
-          this.loading = true;
-          this.$router.push({ path: this.redirect || "/" });
-
-          // this.$store
-          //   .dispatch("user/login", this.loginForm)
-          //   .then((data) => {
-          //     console.log(data);
-          //     this.$router.push({ path: this.redirect || "/" });
-          //     this.loading = false;
-          //   })
-          //   .catch((err) => {
-          //     // 这里接收到错误的response
-          //     if (typeof err === "string") {
-          //       this.$message.error("验证码错误");
-          //     } else {
-          //       this.$message.error("账号或密码错误");
-          //     }
-          //     this.loading = false;
-          //   });
+          (async () => {
+            this.loading = true;
+            await this.$listeners.submit(this.loginForm);
+            this.$router.push({ path: this.redirect || "/" });
+            this.loading = false;
+          })();
         } else {
           return;
         }

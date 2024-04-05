@@ -1,4 +1,4 @@
-import { login, logout, getInfo } from "@/api/user";
+import { login, register, resetPwd, logout, getInfo } from "@/api/user";
 import { getToken, setToken, removeToken } from "@/utils/auth";
 import { resetRouter } from "@/router";
 
@@ -14,18 +14,18 @@ const getDefaultState = () => {
 const state = getDefaultState();
 
 const mutations = {
-  RESET_STATE: (state) => {
-    Object.assign(state, getDefaultState());
-  },
-  SET_TOKEN: (state, token) => {
-    state.token = token;
-  },
-  SET_NAME: (state, name) => {
-    state.name = name;
-  },
-  SET_AVATAR: (state, avatar) => {
-    state.avatar = avatar;
-  },
+  // RESET_STATE: (state) => {
+  //   Object.assign(state, getDefaultState());
+  // },
+  // SET_TOKEN: (state, token) => {
+  //   state.token = token;
+  // },
+  // SET_NAME: (state, name) => {
+  //   state.name = name;
+  // },
+  // SET_AVATAR: (state, avatar) => {
+  //   state.avatar = avatar;
+  // },
   SET_USER: (state, payload) => {
     state.user = payload;
   },
@@ -35,31 +35,30 @@ const actions = {
   // user login
   login({ commit }, userInfo) {
     // const { username, password } = userInfo
-    const postData = {
-      loginId: userInfo.username.trim(),
-      loginPwd: userInfo.password,
-      captcha: userInfo.captcha,
-      remeber: userInfo.checked ? 7 : 0,
-    };
-    console.log(postData);
     return new Promise((resolve, reject) => {
-      login(postData)
+      login(userInfo)
         .then((response) => {
-          console.log(response, typeof response);
-          if (typeof response === "object") {
-            const { data } = response;
-            // console.log(data);
-            if (data) {
-              // commit("SET_TOKEN", data.token);
-              // setToken(data.token);
-              commit("SET_USER", data);
-              resolve(data);
-            } else {
-              reject(response);
-            }
-          } else {
-            reject(response);
-          }
+          console.log(response);
+          const token = response.token;
+          const username = response.username;
+          setToken(token);
+          commit("SET_USER", username);
+          resolve(response);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  },
+
+  // user register
+  register({ commit }, userInfo) {
+    // const { username, password } = userInfo
+    return new Promise((resolve, reject) => {
+      register(userInfo)
+        .then((response) => {
+          console.log(response.message);
+          resolve(response);
         })
         .catch((error) => {
           reject(error);
@@ -73,24 +72,8 @@ const actions = {
     return new Promise((resolve, reject) => {
       getInfo()
         .then((response) => {
-          if (typeof response === "string") {
-            // 未登录或者token过期
-            reject(JSON.parse(response).msg);
-          } else {
-            // 登录成功，存储用户信息
-            const { data } = response;
-            if (!data) {
-              return reject("Verification failed, please Login again.");
-            }
-
-            // const { name, avatar } = data;
-
-            // commit("SET_NAME", name);
-            // commit("SET_AVATAR", avatar);
-
-            commit("SET_USER", data);
-            resolve(data);
-          }
+          console.log(response);
+          commit("SET_USER", response.username);
         })
         .catch((error) => {
           reject(error);
@@ -99,10 +82,11 @@ const actions = {
   },
 
   // user logout
+  // 只删除本地token
   logout({ commit, state }) {
     removeToken(); // must remove  token  first
     resetRouter();
-    commit("RESET_STATE");
+    // commit("RESET_STATE");
 
     // return new Promise((resolve, reject) => {
     //   logout()
@@ -118,15 +102,30 @@ const actions = {
     // });
   },
 
-  // remove token
-  // 重新获取token
-  resetToken({ commit }) {
-    return new Promise((resolve) => {
-      removeToken(); // must remove  token  first
-      commit("RESET_STATE");
-      resolve();
+  // 重置密码
+  resetPwd({ commit }, userInfo) {
+    // const { username, password } = userInfo
+    return new Promise((resolve, reject) => {
+      resetPwd(userInfo)
+        .then((response) => {
+          console.log(response);
+          resolve(response);
+        })
+        .catch((error) => {
+          reject(error);
+        });
     });
   },
+
+  // remove token
+  // 重新获取token
+  // resetToken({ commit }) {
+  //   return new Promise((resolve) => {
+  //     removeToken(); // must remove  token  first
+  //     commit("RESET_STATE");
+  //     resolve();
+  //   });
+  // },
 };
 
 export default {

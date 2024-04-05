@@ -41,11 +41,17 @@ module.exports = {
     // before: require("./mock/mock-server.js"),
 
     proxy: {
-      "/res": {
-        target: "http://localhost:7001",
-      },
+      // "/res": {
+      //   target: "http://192.168.99.183:5003",
+      // },
       "/api": {
-        target: "http://localhost:7001",
+        target: "http://192.168.99.183:5003",
+      },
+      "/upload_video": {
+        target: "http://192.168.99.183:5003",
+      },
+      "/upload_image": {
+        target: "http://192.168.99.183:5003",
       },
     },
   },

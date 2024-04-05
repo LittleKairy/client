@@ -17,7 +17,7 @@ import "@/icons"; // icon
 import "@/assets/icon/iconfont.css";
 
 // 鉴权
-// import "@/permission"; // permission control
+import "@/permission"; // permission control
 
 /**
  * If you don't want to use mock-server

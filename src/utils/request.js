@@ -7,7 +7,7 @@ import { getToken } from "@/utils/auth";
 const service = axios.create({
   // baseURL: process.env.VUE_APP_BASE_API, // url = basse url + request url
   // withCredentials: true, // send cookies when cross-domain requests
-  timeout: 5000, // request timeout
+  // timeout: 5000, // request timeout
 });
 
 // request interceptor
@@ -24,10 +24,12 @@ service.interceptors.request.use(
     // }
 
     // 添加token响应头
-    // const token = getToken();
-    // if (token) {
-    //   config.headers["Authorization"] = "Bearer " + token;
-    // }
+    const token = getToken();
+    if (token) {
+      // config.headers["Authorization"] = "Bearer " + token;
+      // console.log(token);
+      config.headers["Authorization"] = token;
+    }
     return config;
   },
   (error) => {
@@ -38,6 +40,7 @@ service.interceptors.request.use(
 );
 
 // response interceptor
+// 响应拦截器
 service.interceptors.response.use(
   /**
    * If you want to get http information such as headers or status
@@ -50,25 +53,15 @@ service.interceptors.response.use(
    * You can also judge the status by HTTP Status Code
    */
 
-  // 响应拦截器
   (response) => {
-    // 登录成功后在响应头中设置token
-    // 在拦截器中获取token
-    // if (response.headers.authentication) {
-    //   // 将token存储到localStorage，之后向服务器的请求都携带token
-    //   localStorage.setItem("adminToken", response.headers.authentication);
-    // }
-
-    return response.data;
-
     // if the custom code is not 20000, it is judged as an error.
-    // if (res.code !== 20000) {
-    //   Message({
-    //     message: res.message || "Error",
-    //     type: "error",
-    //     duration: 5 * 1000,
-    //   });
-
+    const res = response.data;
+    // Message({
+    //   message: res.message || "Success",
+    //   type: "success",
+    //   duration: 5 * 1000,
+    // });
+    return res;
     //   // 50008: Illegal token; 50012: Other clients logged in; 50014: Token expired;
     //   if (res.code === 50008 || res.code === 50012 || res.code === 50014) {
     //     // to re-login
@@ -93,11 +86,11 @@ service.interceptors.response.use(
   },
   (error) => {
     console.log("err" + error); // for debug
-    Message({
-      message: error.message,
-      type: "error",
-      duration: 5 * 1000,
-    });
+    // Message({
+    //   message: error.message,
+    //   type: "error",
+    //   duration: 5 * 1000,
+    // });
     return Promise.reject(error);
   }
 );

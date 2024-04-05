@@ -11,15 +11,13 @@
     <div class="right-menu">
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
-          <img :src="avatar + '?imageView2/1/w/80/h/80'" class="user-avatar" />
+          <!-- <img :src="avatar + '?imageView2/1/w/80/h/80'" class="user-avatar" /> -->
+          <p class="name">{{ user }}</p>
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
           <router-link to="/">
             <el-dropdown-item> Home </el-dropdown-item>
-          </router-link>
-          <router-link to="/personalSetting">
-            <el-dropdown-item> 个人中心 </el-dropdown-item>
           </router-link>
           <el-dropdown-item divided @click.native="logout">
             <span style="display: block">退出登录</span>
@@ -41,7 +39,8 @@ export default {
     Hamburger,
   },
   computed: {
-    ...mapGetters(["sidebar", "avatar"]),
+    // ...mapGetters(["sidebar", "avatar"]),
+    ...mapGetters(["sidebar", "user"]),
   },
   methods: {
     toggleSideBar() {
@@ -113,6 +112,15 @@ export default {
       .avatar-wrapper {
         margin-top: 5px;
         position: relative;
+
+        .name {
+          height: 100%;
+          width: 100%;
+          text-align: center;
+          margin: 0;
+          font-size: 1.2rem;
+          cursor: pointer;
+        }
 
         .user-avatar {
           cursor: pointer;

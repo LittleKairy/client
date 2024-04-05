@@ -148,12 +148,12 @@
 
 <script>
 import axios from "axios";
-
+import { uploadImage } from "@/api/upload";
 export default {
   name: "Content",
   data() {
     return {
-      server_url: "http://127.0.0.1:5003",
+      // server_url: "http://192.168.99.183:5003",
       activeName: "first",
       active: 0,
       centerDialogVisible: true,
@@ -223,37 +223,64 @@ export default {
       this.url_1 = this.$options.methods.getObjectURL(file);
       let param = new FormData(); //创建form对象
       param.append("file", file, file.name); //通过append向form对象添加数据
+
       var timer = setInterval(() => {
         this.myFunc();
       }, 30);
-      let config = {
-        headers: { "Content-Type": "multipart/form-data" },
-      }; //添加请求头
-      axios
-        .post(this.server_url + "/upload", param, config)
-        .then((response) => {
-          this.percentage = 100;
-          clearInterval(timer);
-          this.url_1 = response.data.image_url;
-          this.srcList.push(this.url_1);
-          this.url_2 = response.data.draw_url;
-          this.srcList1.push(this.url_2);
-          this.fullscreenLoading = false;
-          this.loading = false;
+      // let config = {
+      //   headers: {
+      //     "Content-Type": "multipart/form-data",
+      //   },
+      // }; //添加请求头
+      uploadImage(param).then((resp) => {
+        console.log(resp);
+        this.percentage = 100;
+        clearInterval(timer);
+        this.url_1 = resp.image_url;
+        this.srcList.push(this.url_1);
+        this.url_2 = resp.draw_url;
+        this.srcList1.push(this.url_2);
+        this.fullscreenLoading = false;
+        this.loading = false;
 
-          this.feat_list = Object.keys(response.data.image_info);
+        this.feat_list = Object.keys(resp.image_info);
 
-          for (var i = 0; i < this.feat_list.length; i++) {
-            response.data.image_info[this.feat_list[i]][2] = this.feat_list[i];
-            this.feature_list.push(response.data.image_info[this.feat_list[i]]);
-          }
+        for (var i = 0; i < this.feat_list.length; i++) {
+          resp.image_info[this.feat_list[i]][2] = this.feat_list[i];
+          this.feature_list.push(resp.image_info[this.feat_list[i]]);
+        }
 
-          this.feature_list.push(response.data.image_info);
-          this.feature_list_1 = this.feature_list[0];
-          this.dialogTableVisible = false;
-          this.percentage = 0;
-          this.notice1();
-        });
+        this.feature_list.push(resp.image_info);
+        this.feature_list_1 = this.feature_list[0];
+        this.dialogTableVisible = false;
+        this.percentage = 0;
+        this.notice1();
+      });
+      // axios
+      //   .post("http://192.168.99.183:5003/upload_image", param, config)
+      //   .then((response) => {
+      //     this.percentage = 100;
+      //     clearInterval(timer);
+      //     this.url_1 = response.data.image_url;
+      //     this.srcList.push(this.url_1);
+      //     this.url_2 = response.data.draw_url;
+      //     this.srcList1.push(this.url_2);
+      //     this.fullscreenLoading = false;
+      //     this.loading = false;
+
+      //     this.feat_list = Object.keys(response.data.image_info);
+
+      //     for (var i = 0; i < this.feat_list.length; i++) {
+      //       response.data.image_info[this.feat_list[i]][2] = this.feat_list[i];
+      //       this.feature_list.push(response.data.image_info[this.feat_list[i]]);
+      //     }
+
+      //     this.feature_list.push(response.data.image_info);
+      //     this.feature_list_1 = this.feature_list[0];
+      //     this.dialogTableVisible = false;
+      //     this.percentage = 0;
+      //     this.notice1();
+      //   });
     },
     myFunc() {
       if (this.percentage + 33 < 99) {
@@ -267,7 +294,7 @@ export default {
       this.$notify({
         title: "预测成功",
         message: "点击图片可以查看大图",
-        duration: 0,
+        duration: 2000,
         type: "success",
       });
     },
@@ -397,7 +424,7 @@ export default {
   width: 250px;
   height: 290px;
 
-  margin: 20px 460px;
+  margin: 20px 427px;
   /* background-color: green; */
 }
 

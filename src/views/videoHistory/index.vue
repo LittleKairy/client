@@ -1,6 +1,5 @@
 <template>
   <div class="app-container">
-    <!-- <h3>{{ title }}</h3> -->
     <el-table v-loading="loading" :data="pageList" border style="width: 100%">
       <el-table-column label="序号" width="180" align="center">
         <template slot-scope="scope">
@@ -8,13 +7,18 @@
         </template>
       </el-table-column>
       <el-table-column label="检测目标" width="250" align="center">
-        <!-- <template slot-scope="scope">{{ scope.row.title }} </template> -->
         <template slot-scope="scope">
-          <el-image
-            :src="scope.row.path"
-            fit="contain"
-            :preview-src-list="srcList"
-          ></el-image>
+          <el-tooltip
+            class="item"
+            effect="dark"
+            content="点击在新标签页中查看视频"
+            placement="top"
+          >
+            <el-image
+              :src="scope.row.path"
+              @click="showVideo(scope.row.path)"
+            ></el-image>
+          </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column label="检测日期" align="center">
@@ -42,7 +46,7 @@
 </template>
 
 <script>
-import { getImageHist } from "@/api/history";
+import { getVideoHist } from "@/api/history";
 import formatDate from "@/utils/formatDate";
 import deleteBtn from "@/components/deleteBtn.vue";
 import PagerVue from "@/components/Pager.vue";
@@ -52,7 +56,6 @@ export default {
   data() {
     return {
       list: [],
-      srcList: [],
       type: "img", // img 或 vedio
       // 分页
       total: 0, // 总共多少项
@@ -61,6 +64,8 @@ export default {
       pageSizes: [5, 10, 20], // 分页规则
 
       loading: true,
+      videoSrc: null,
+      dialogVisible: false,
     };
   },
   created() {
@@ -88,10 +93,9 @@ export default {
       // });
       // console.log("fetchdata");
       this.loading = true;
-      getImageHist().then((resp) => {
+      getVideoHist().then((resp) => {
         // console.log(resp);
         let rows = [];
-        let imgList = [];
         for (const jsonString of resp.rows) {
           // 去掉字符串中的转义符号
           let matchResult = jsonString.match(
@@ -108,11 +112,9 @@ export default {
 
           // console.log(jsonObject);
           rows.push(jsonObject);
-          imgList.push(jsonObject.path);
         }
         console.log(rows);
         this.list = rows;
-        this.srcList = imgList;
         this.total = resp.total;
         this.loading = false;
       });
@@ -141,6 +143,17 @@ export default {
         //   this.fetchData();
         // });
       }
+    },
+    showVideo(path) {
+      console.log(path);
+      window.open(path);
+    },
+    handleClose(done) {
+      this.$confirm("确认关闭？")
+        .then((_) => {
+          done();
+        })
+        .catch((_) => {});
     },
   },
 };
